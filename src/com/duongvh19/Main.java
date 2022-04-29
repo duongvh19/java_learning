@@ -1,49 +1,65 @@
 package com.duongvh19;
 
-import static com.duongvh19.ThreadColor.*;
-
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println(ANSI_PURPLE+"Hello from the main thread.");
-
-        Thread anotherThread = new AnotherThread();
-        anotherThread.setName("== Another Thread ==");
-        anotherThread.start();
-
-        new Thread() {
-            public void run() {
-                System.out.println(ANSI_GREEN + "Hello from the anonymous class thread");
-            }
-        }.start();
 
 
-        Thread myRunnableThread = new Thread(new MyRunnable() {
-            @Override
-            public void run() {
-                System.out.println(ANSI_RED + "Hello from the anonymous class's implementation of run()");
-                try {
-                    anotherThread.join(3000);
-                    System.out.println(ANSI_RED + "Another thread interrupted, so I am running again.");
-                } catch (InterruptedException e){
-                    System.out.println(ANSI_RED + "I couldn't wait after all. I was interrupted.");
-                }
-            }
-        });
+        CountDown countDown1 = new CountDown();
+        CountDown countDown2 = new CountDown();
+        CountDownThread t1 = new CountDownThread(countDown1);
+        t1.setName("Thread 1");
 
-        myRunnableThread.start();
-//        anotherThread.interrupt();
+        CountDownThread t2 = new CountDownThread(countDown1);
+        t2.setName("Thread 2");
 
-        System.out.println(ANSI_PURPLE+"Hello again from the main thread.");
-
-        ThreadJoin t1 = new ThreadJoin();
-        ThreadJoin t2 = new ThreadJoin();
         t1.start();
         t2.start();
-        try {
-            t1.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+
+    }
+
+}
+
+class CountDown {
+
+    private int i;
+    String color;
+
+    public synchronized void doCountDown() {
+
+        switch (Thread.currentThread().getName()) {
+            case "Thread 1":
+                color = ThreadColor.ANSI_BLUE;
+                break;
+            case "Thread 2":
+                color = ThreadColor.ANSI_RED;
+                break;
+            default:
+                color = ThreadColor.ANSI_GREEN;
         }
+
+//        synchronized (this) {
+//            for (i = 10; i> 0; i--) {
+//                System.out.println(color + Thread.currentThread().getName() + ": i = " + i);
+//            }
+//        }
+
+        for (i = 10; i> 0; i--) {
+            System.out.println(color + Thread.currentThread().getName() + ": i = " + i);
+        }
+
+    }
+}
+
+class CountDownThread extends Thread {
+
+    private CountDown countDown;
+
+    public CountDownThread(CountDown countDown) {
+        this.countDown = countDown;
+    }
+
+    public void run() {
+        countDown.doCountDown();
     }
 }
