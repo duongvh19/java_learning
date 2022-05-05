@@ -1,8 +1,88 @@
 package com.duongvh19;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import static com.duongvh19.Main.EOF;
+
 public class Main {
 
+    public static final String EOF = "EOF";
+
     public static void main(String[] args) {
-        System.out.println("Hello Java");
+        List<String> buffer = new ArrayList<>();
+        MyProducer producer = new MyProducer(buffer,ThreadColor.TEXT_YELLOW);
+        MyConsumer consumer1 = new MyConsumer(buffer, ThreadColor.TEXT_CYAN);
+        MyConsumer consumer2 = new MyConsumer(buffer, ThreadColor.TEXT_PURPLE);
+
+        new Thread(producer).start();
+        new Thread(consumer1).start();
+        new Thread(consumer2).start();
+
+    }
+}
+
+class MyProducer implements Runnable {
+
+    private List<String> buffer;
+    private String color;
+
+    public MyProducer(List<String> buffer, String color) {
+        this.buffer = buffer;
+        this.color = color;
+    }
+
+    public void run(){
+        Random random = new Random();
+        String [] nums = {"1","2","3","4","5"};
+
+        for(String num : nums){
+            System.out.println(color + "Adding..." + num);
+
+            synchronized (buffer) {
+                buffer.add(num);
+            }
+
+            try {
+                Thread.sleep(random.nextInt(1000));
+            } catch (InterruptedException e) {
+                System.out.println("Producer Interrupted");
+            }
+        }
+        System.out.println(color + "Adding EOF and exiting...");
+
+        synchronized (buffer) {
+            buffer.add("EOF");
+        }
+
+    }
+}
+
+class MyConsumer implements Runnable {
+
+    private List<String> buffer;
+    private String color;
+
+    public MyConsumer(List<String> buffer, String color) {
+        this.buffer = buffer;
+        this.color = color;
+    }
+
+    public void run () {
+        while (true){
+            synchronized (buffer) {
+                if(buffer.isEmpty()){
+                    continue;
+                }
+                if(buffer.get(0).equals(EOF)){
+                    System.out.println(color + "Exiting...");
+                    break;
+                }else{
+                    System.out.println(color + "Remove" + buffer.remove(0));
+                }
+            }
+
+        }
     }
 }
