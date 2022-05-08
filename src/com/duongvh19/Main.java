@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         List<String> buffer = new ArrayList<>();
         ReentrantLock bufferLock = new ReentrantLock();
-        MyProducer producer = new MyProducer(buffer,ThreadColor.TEXT_YELLOW, bufferLock);
+        MyProducer producer = new MyProducer(buffer, ThreadColor.TEXT_YELLOW, bufferLock);
         MyConsumer consumer1 = new MyConsumer(buffer, ThreadColor.TEXT_CYAN, bufferLock);
         MyConsumer consumer2 = new MyConsumer(buffer, ThreadColor.TEXT_PURPLE, bufferLock);
 
@@ -37,20 +37,19 @@ class MyProducer implements Runnable {
         this.bufferLock = bufferLock;
     }
 
-    public void run(){
+    public void run() {
         Random random = new Random();
-        String [] nums = {"1","2","3","4","5"};
+        String[] nums = {"1", "2", "3", "4", "5"};
 
-        for(String num : nums){
+        for (String num : nums) {
             System.out.println(color + "Adding..." + num);
 
-//            synchronized (buffer) {
-//                buffer.add(num);
-//            }
-
             bufferLock.lock();
-            buffer.add(num);
-            bufferLock.unlock();
+            try {
+                buffer.add(num);
+            } finally {
+                bufferLock.unlock();
+            }
 
             try {
                 Thread.sleep(random.nextInt(1000));
@@ -60,13 +59,12 @@ class MyProducer implements Runnable {
         }
         System.out.println(color + "Adding EOF and exiting...");
 
-//        synchronized (buffer) {
-//            buffer.add("EOF");
-//        }
-
         bufferLock.lock();
-        buffer.add("EOF");
-        bufferLock.unlock();
+        try {
+            buffer.add("EOF");
+        } finally {
+            bufferLock.unlock();
+        }
 
     }
 }
@@ -83,25 +81,23 @@ class MyConsumer implements Runnable {
         this.bufferLock = bufferLock;
     }
 
-    public void run () {
-        while (true){
-//            synchronized (buffer) {
+    public void run() {
+        while (true) {
 
             bufferLock.lock();
-                if(buffer.isEmpty()){
-                    bufferLock.unlock();
+            try {
+                if (buffer.isEmpty()) {
                     continue;
                 }
-                if(buffer.get(0).equals(EOF)){
+                if (buffer.get(0).equals(EOF)) {
                     System.out.println(color + "Exiting...");
-                    bufferLock.unlock();
                     break;
-                }else{
+                } else {
                     System.out.println(color + "Remove" + buffer.remove(0));
                 }
+            } finally {
                 bufferLock.unlock();
-//            }
-
+            }
         }
     }
 }
