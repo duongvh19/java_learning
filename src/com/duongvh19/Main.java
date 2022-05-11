@@ -32,19 +32,19 @@ public class Main {
 
     private static class Thread2 extends Thread {
         public void run() {
-            synchronized (lock2){
-                System.out.println("Thread1: Has lock2.");
+            synchronized (lock1){
+                System.out.println("Thread2: Has lock1.");
                 try{
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
 
                 }
-                System.out.println("Thread1: Waiting for lock 2.");
-                synchronized (lock1){
-                    System.out.println("Thread1: Has lock2 and lock2");
+                System.out.println("Thread2: Waiting for lock 2.");
+                synchronized (lock2){
+                    System.out.println("Thread2: Has lock1 and lock2");
                 }
             }
-            System.out.println("Thread2: Released lock2. Exiting...");
+            System.out.println("Thread2: Released lock1. Exiting...");
         }
     }
 }
