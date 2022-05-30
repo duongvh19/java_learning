@@ -1,7 +1,10 @@
 package com.duongvh19;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class Challenge {
 
@@ -26,16 +29,16 @@ public class Challenge {
                 System.out.print(part + "\t");
             }
         };
-
-        Thread t1 = new Thread(runnable);
-        t1.start();
-        try {
-            t1.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        Thread t2 = new Thread(r);
-        t2.start();
+//
+//        Thread t1 = new Thread(runnable);
+//        t1.start();
+//        try {
+//            t1.join();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        Thread t2 = new Thread(r);
+//        t2.start();
 
         //Challenge 2
 
@@ -59,6 +62,27 @@ public class Challenge {
         //Challenge 6
         Supplier<String> iLoveJava = () -> "I love Java!";
         System.out.println(iLoveJava.get());
+
+        //Challenge 9
+        List<String> names = Arrays.asList("Amelia", "Olivia", "emily", "Isla",
+                "Ava", "oliver", "jack", "Charlie", "harry", "Jacob");
+
+        System.out.println("=================");
+        names.stream()
+                .map(s -> s.substring(0,1).toUpperCase() + s.substring(1))
+                .sorted()
+                .forEach(s -> System.out.print(s + "\t"));
+
+        long namesBeginningWithA = names.stream()
+                .filter(s-> s.startsWith("A"))
+                .map(s -> s.substring(0,1).toUpperCase() + s.substring(1))
+                .count();
+        System.out.println("\nNumber of names beginning with A is: " + namesBeginningWithA);
+
+        names.stream()
+                .map(s -> s.substring(0,1).toUpperCase() + s.substring(1))
+                .peek(System.out::println)
+                .collect(Collectors.toList());
 
     }
 
